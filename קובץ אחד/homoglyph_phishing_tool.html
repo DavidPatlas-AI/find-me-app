@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תחפשני - זיהוי הומוגליפים ותבניות פישינג</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .header { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 { 
+            font-size: 3.5em; 
+            margin: 0; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p { 
+            font-size: 1.3em; 
+            margin: 15px 0; 
+            opacity: 0.9;
+        }
+
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .tabs { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn { 
+            padding: 15px 25px; 
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .tab-btn.active { 
+            background: white; 
+            color: #667eea; 
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .input-group { margin-bottom: 25px; }
+        .input-group label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            font-size: 18px; 
+            color: #2c3e50;
+        }
+        .input-group textarea, .input-group input { 
+            width: 100%; 
+            padding: 18px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 12px; 
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .input-group textarea:focus, .input-group input:focus { 
+            outline: none; 
+            border-color: #667eea; 
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn { 
+            padding: 15px 30px; 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-small { padding: 10px 20px; font-size: 14px; }
+        .btn-secondary { 
+            background: linear-gradient(135deg, #6c757d, #495057); 
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        .btn-green { 
+            background: linear-gradient(135deg, #28a745, #20c997); 
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .btn-blue { 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .output-box { 
+            background: #f8f9fa; 
+            border: 2px solid #dee2e6; 
+            border-radius: 12px; 
+            padding: 20px; 
+            font-family: 'Courier New', monospace; 
+            font-size: 16px; 
+            min-height: 120px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .output-clean { 
+            background: linear-gradient(135deg, #d4edda, #c3e6cb); 
+            border-color: #28a745;
+            color: #155724;
+        }
+        .highlight { 
+            background: linear-gradient(135deg, #ffebee, #ffcdd2); 
+            color: #c62828; 
+            padding: 3px 6px; 
+            border-radius: 6px; 
+            font-weight: bold;
+            border: 1px solid #ef5350;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(198, 40, 40, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0); }
+        }
+        
+        .results { margin-top: 30px; }
+        .results-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 25px; 
+            margin-bottom: 25px; 
+        }
+        @media (max-width: 768px) { .results-grid { grid-template-columns: 1fr; } }
+        
+        .analysis { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
+            border: 2px solid #ffc107; 
+            border-radius: 15px; 
+            padding: 25px;
+        }
+        
+        .analysis-success { 
+            background: linear-gradient(135deg, #d4edda, #a3d9a4); 
+            border-color: #28a745;
+            color: #155724;
+        }
+        .analysis-danger { 
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7); 
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .radio-group { 
+            display: flex; 
+            gap: 20px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+            margin: 20px 0;
+        }
+        .radio-group label { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 20px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 12px; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
+        }
+        .radio-group label:hover { 
+            border-color: #667eea; 
+            background: #f8f9ff;
+        }
+        .radio-group input[type="radio"] { margin-left: 8px; }
+        
+        .examples { margin-top: 15px; text-align: center; }
+        .examples button { margin: 8px; }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
+            border: 2px solid #ffc107; 
+            border-radius: 15px; 
+            padding: 25px; 
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .table-container { 
+            overflow-x: auto; 
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white; 
+            border-radius: 15px; 
+            overflow: hidden;
+        }
+        th, td { 
+            padding: 15px; 
+            border: 1px solid #e1e8ed; 
+            text-align: center;
+        }
+        th { 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            font-weight: bold;
+            font-size: 16px;
+        }
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { 
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb); 
+        }
+        
+        .char-display { 
+            font-size: 28px; 
+            font-family: 'Courier New', monospace; 
+            font-weight: bold;
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 25px; 
+            margin-bottom: 30px;
+        }
+        
+        .template-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            text-align: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .icon { 
+            font-size: 50px; 
+            margin-bottom: 15px;
+        }
+        
+        .viewer { 
+            display: none; 
+            background: white; 
+            padding: 30px; 
+            margin-top: 30px; 
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .preview { 
+            border: 3px solid #667eea; 
+            padding: 20px; 
+            margin: 20px 0; 
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .code { 
+            background: linear-gradient(135deg, #2d3748, #1a202c); 
+            color: #e2e8f0; 
+            padding: 25px; 
+            margin: 20px 0; 
+            border-radius: 12px; 
+            overflow-x: auto;
+        }
+        
+        .tips { 
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 12px;
+            border: 2px solid #ffc107;
+            font-weight: 500;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5em; }
+            .container { padding: 0 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 תחפשני</h1>
+            <p>כלי מתקדם לזיהוי הומוגליפים וניתוח תבניות פישינג</p>
+            <p style="font-size: 1em; opacity: 0.8;">למטרות חינוכיות ומחקר אבטחת מידע בלבד</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('detect')">🔍 זיהוי הומוגליפים</button>
+            <button class="tab-btn" onclick="showTab('generate')">🎲 יצירת טקסט מתחפש</button>
+            <button class="tab-btn" onclick="showTab('table')">📊 טבלת תווים</button>
+            <button class="tab-btn" onclick="showTab('templates')">🎭 תבניות פישינג</button>
+        </div>
+        
+        <!-- Detection Tab -->
+        <div id="detect" class="tab-content active">
+            <div class="card">
+                <div class="input-group">
+                    <label>🔍 הדבק טקסט לבדיקת הומוגליפים:</label>
+                    <textarea id="detectInput" rows="5" placeholder="נסה להדביק: Dаvid (David עם אות 'a' רוסית), gооglе.соm, раyраl.com"></textarea>
+                    <div class="examples">
+                        <button class="btn btn-small btn-secondary" onclick="setExample('Dаvid')">📝 David מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('gооglе.соm')">📝 Google מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('раyраl.com')">📝 PayPal מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('miсrоsоft.com')">📝 Microsoft מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('аpplе.com')">📝 Apple מזויף</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="analyzeText()">🔍 בדוק טקסט</button>
+                </div>
+                
+                <div id="detectResults" class="results" style="display: none;">
+                    <div class="stats-container" id="statsContainer" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-number" id="suspiciousCount">0</div>
+                            <div class="stat-label">תווים חשודים</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="riskLevel">נמוך</div>
+                            <div class="stat-label">רמת סיכון</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="cleanPercentage">100%</div>
+                            <div class="stat-label">טקסט תקין</div>
+                        </div>
+                    </div>
+                    
+                    <div class="results-grid">
+                        <div>
+                            <h3>📝 טקסט מקורי (עם הדגשות):</h3>
+                            <div id="originalText" class="output-box"></div>
+                        </div>
+                        <div>
+                            <h3>✅ גרסה נקייה: <button class="btn btn-small btn-green" onclick="copyText('cleanText')">📋 העתק</button></h3>
+                            <div id="cleanText" class="output-box output-clean"></div>
+                        </div>
+                    </div>
+                    <div id="analysisResult"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Generation Tab -->
+        <div id="generate" class="tab-content">
+            <div class="card">
+                <div class="input-group">
+                    <label>🎲 הזן טקסט ליצירת גרסה מתחפשת:</label>
+                    <textarea id="generateInput" rows="3" placeholder="דוגמה: Google, PayPal, Microsoft, Apple"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>רמת ההתחפשות:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="level" value="0.3" checked> 🟢 קל (30%)</label>
+                        <label><input type="radio" name="level" value="0.6"> 🟡 בינוני (60%)</label>
+                        <label><input type="radio" name="level" value="0.9"> 🔴 כבד (90%)</label>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="generateText()">🎲 צור טקסט מתחפש</button>
+                </div>
+                
+                <div id="generateResults" class="results" style="display: none;">
+                    <div style="background: linear-gradient(135deg, #343a40, #212529); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                            <h3 style="margin: 0; font-size: 1.5em;">🎭 הטקסט המתחפש:</h3>
+                            <button class="btn btn-small btn-green" onclick="copyText('generatedText')">📋 העתק</button>
+                        </div>
+                        <div id="generatedText" style="background: linear-gradient(135deg, #495057, #6c757d); padding: 20px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 24px; word-break: break-all; border: 2px solid #adb5bd;"></div>
+                    </div>
+                    <div id="generateAnalysis"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Table Tab -->
+        <div id="table" class="tab-content">
+            <div class="card">
+                <div class="input-group">
+                    <label>🔍 חפש בטבלת ההומוגליפים:</label>
+                    <input type="text" id="tableSearch" placeholder="חפש תו, שפה או קוד Unicode..." onkeyup="filterTable()">
+                </div>
+                
+                <div class="table-container">
+                    <table id="homoglyphTable">
+                        <thead>
+                            <tr>
+                                <th>תו מקורי</th>
+                                <th>תו מתחפש</th>
+                                <th>מערכת כתיבה</th>
+                                <th>קוד Unicode</th>
+                                <th>שימוש נפוץ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- יתמלא ב-JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Templates Tab -->
+        <div id="templates" class="tab-content">
+            <div class="card">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🎭 תבניות פישינג לחינוך</h2>
+                <p style="text-align: center; margin-bottom: 30px; color: #6c757d; font-size: 1.1em;">
+                    תבניות אלו מיועדות ללימוד וזיהוי ניסיונות פישינג. השתמש בהן כדי ללמוד איך לזהות מיילים מזויפים.
+                </p>
+                
+                <div class="grid">
+                    <div class="template-card" onclick="showTemplate('bank')">
+                        <div class="icon">🏦</div>
+                        <h3>בנק הפועלים</h3>
+                        <p>הודעת אבטחה מזויפת</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('post')">
+                        <div class="icon">📮</div>
+                        <h3>דואר ישראל</h3>
+                        <p>חבילה ממתינה</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('paypal')">
+                        <div class="icon">💳</div>
+                        <h3>PayPal</h3>
+                        <p>אישור תשלום</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('google')">
+                        <div class="icon">🔍</div>
+                        <h3>Google</h3>
+                        <p>התראת אבטחה</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('microsoft')">
+                        <div class="icon">🖥️</div>
+                        <h3>Microsoft</h3>
+                        <p>עדכון Office</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('netflix')">
+                        <div class="icon">🎬</div>
+                        <h3>Netflix</h3>
+                        <p>בעיה בתשלום</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('whatsapp')">
+                        <div class="icon">💬</div>
+                        <h3>WhatsApp</h3>
+                        <p>אישור מכשיר</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('amazon')">
+                        <div class="icon">📦</div>
+                        <h3>Amazon</h3>
+                        <p>עדכון הזמנה</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('apple')">
+                        <div class="icon">🍎</div>
+                        <h3>Apple</h3>
+                        <p>קבלה מהחנות</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('facebook')">
+                        <div class="icon">👥</div>
+                        <h3>Facebook</h3>
+                        <p>התראת אבטחה</p>
+                    </div>
+                </div>
+                
+                <div id="templateViewer" class="viewer">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                        <h2 id="templateTitle" style="margin: 0;"></h2>
+                        <div>
+                            <button class="btn btn-small btn-green" onclick="copyTemplateCode()">📋 העתק קוד</button>
+                            <button class="btn btn-small btn-blue" onclick="downloadTemplate()">⬇️ הורד</button>
+                            <button class="btn btn-small btn-secondary" onclick="closeTemplate()">❌ סגור</button>
+                        </div>
+                    </div>
+                    
+                    <h3>👁️ תצוגה מקדימה:</h3>
+                    <div id="templatePreview" class="preview"></div>
+                    
+                    <h3>📝 קוד HTML:</h3>
+                    <div class="code">
+                        <pre id="templateCode" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+                    </div>
+                    
+                    <h3>🔍 איך לזהות שזה זיוף:</h3>
+                    <div id="templateTips" class="tips"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ אזהרה חשובה</h3>
+            <p style="font-size: 1.2em; margin: 15px 0;">כלי זה מיועד למטרות חינוכיות ומחקר בטחון מידע בלבד. אסור להשתמש בו לפעילות בלתי חוקית, הונאה או פישינג.</p>
+            <p style="font-size: 1em; opacity: 0.8;">השימוש בכלי זה הוא באחריותך הבלעדית ולמטרות לגיטימיות בלבד.</p>
+        </div>
+    </div>
+
+    <script>
+        // מאגר הומוגליפים מקיף
+        const homoglyphs = {
+            // אותיות קטנות
+            'a': ['а', 'α', 'ạ', 'ả', 'ã', 'à', 'á', 'ą', 'ā', 'ă'], // רוסית, יוונית, ויטנמית
+            'e': ['е', 'ε', 'ë', 'ê', 'é', 'è', 'ě', 'ę', 'ē', 'ė'], 
+            'o': ['о', 'ο', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ő', 'ō'], 
+            'p': ['р', 'ρ', 'þ'], 
+            'c': ['с', 'ϲ', 'ç', 'ć', 'č', 'ċ'], 
+            'x': ['х', 'χ', '×'], 
+            'y': ['у', 'γ', 'ý', 'ÿ', 'ŷ'], 
+            'i': ['і', 'ι', 'í', 'ì', 'î', 'ï', 'ĩ', 'ī', 'į'], 
+            'n': ['η', 'ñ', 'ń', 'ň', 'ņ'], 
+            'k': ['κ', 'ķ'], 
+            'h': ['һ', 'ĥ', 'ħ'], 
+            'b': ['в', 'ḃ'], 
+            'm': ['м', 'ḿ'], 
+            't': ['т', 'ţ', 'ť', 'ṫ'], 
+            's': ['ѕ', 'ś', 'š', 'ş', 'ṡ'], 
+            'r': ['г', 'ŕ', 'ř', 'ṙ'], 
+            'u': ['υ', 'ú', 'ù', 'û', 'ü', 'ũ', 'ū', 'ų', 'ů'],
+            'v': ['ν', 'ṽ'],
+            'w': ['ω', 'ẃ', 'ẁ', 'ŵ', 'ẅ'],
+            'j': ['ј', 'ĵ'],
+            'l': ['ⅼ', '|', 'ł', 'ĺ', 'ľ', 'ļ', 'ḷ'],
+            'd': ['ԁ', 'ď', 'ḋ'],
+            'g': ['ɡ', 'ğ', 'ġ', 'ģ'],
+            'q': ['ԛ'],
+            'z': ['ᴢ', 'ź', 'ž', 'ż'],
+            'f': ['ḟ'],
+            
+            // אותיות גדולות
+            'A': ['А', 'Α', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Ą', 'Ā'], 
+            'B': ['В', 'Β', 'Ḃ'], 
+            'E': ['Е', 'Ε', 'È', 'É', 'Ê', 'Ë', 'Ę', 'Ē', 'Ė'], 
+            'H': ['Н', 'Η', 'Ḣ'], 
+            'I': ['І', 'Ι', 'Ì', 'Í', 'Î', 'Ï', 'Ĩ', 'Ī', 'Į'], 
+            'K': ['К', 'Κ', 'Ķ'], 
+            'M': ['М', 'Μ', 'Ḿ'], 
+            'N': ['Ν', 'Ñ', 'Ń', 'Ň', 'Ņ'], 
+            'O': ['О', 'Ο', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ő', 'Ō'], 
+            'P': ['Р', 'Ρ', 'Þ'], 
+            'S': ['Ѕ', 'Ś', 'Š', 'Ş'], 
+            'T': ['Т', 'Τ', 'Ţ', 'Ť'], 
+            'X': ['Х', 'Χ'], 
+            'Y': ['У', 'Υ', 'Ý', 'Ÿ', 'Ŷ'], 
+            'Z': ['Ζ', 'Ź', 'Ž', 'Ż'],
+            'C': ['С', 'Ç', 'Ć', 'Č', 'Ċ'],
+            'D': ['Ď', 'Ḋ'],
+            'F': ['Ḟ'],
+            'G': ['Ğ', 'Ġ', 'Ģ'],
+            'J': ['Ĵ'],
+            'L': ['Ł', 'Ĺ', 'Ľ', 'Ļ'],
+            'Q': ['Ԛ'],
+            'R': ['Ŕ', 'Ř'],
+            'U': ['Ú', 'Ù', 'Û', 'Ü', 'Ũ', 'Ū', 'Ų', 'Ů'],
+            'V': ['Ṽ'],
+            'W': ['Ẃ', 'Ẁ', 'Ŵ', 'Ẅ'],
+            
+            // מספרים
+            '0': ['О', 'о', 'Ο', 'ο', '۰', '𝟎', '𝟘'], 
+            '1': ['l', 'I', 'І', '|', '𝟏', '𝟙', '۱'],
+            '2': ['𝟐', '𝟚', '۲'],
+            '3': ['𝟑', '𝟛', '۳', 'З'],
+            '4': ['𝟒', '𝟜', '۴'],
+            '5': ['𝟓', '𝟝', '۵', 'Ƽ'],
+            '6': ['б', '𝟔', '𝟞', '۶'],
+            '7': ['𝟕', '𝟟', '۷'],
+            '8': ['𝟖', '𝟠', '۸'],
+            '9': ['𝟗', '𝟡', '۹', 'ց']
+        };
+
+        // מאגר תבניות פישינג
+        const templates = {
+            bank: {
+                title: 'בנק הפועלים',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: rtl; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #1f4788; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px;">🏦 בנק הפועלים</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #dc3545; margin-top: 0;">⚠️ התראת אבטחה חשובה</h2>
+    <p style="font-size: 16px; line-height: 1.5;">שלום רב,</p>
+    <p style="font-size: 16px; line-height: 1.5;">זיהינו פעילות חשודה בחשבון הבנק שלך:</p>
+    <div style="background: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffc107;">
+        <strong>🚨 החשבון הוקפא זמנית למען ביטחונך!</strong><br>
+        <span style="font-size: 14px;">מספר החשבון: ****1234</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5;">לביטול הקפאת החשבון, יש לאמת את זהותך:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #1f4788; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">אמת זהות עכשיו</a>
+    </div>
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+        בכבוד רב,<br>
+        צוות אבטחת המידע<br>
+        בנק הפועלים
+    </p>
+</div>
+</div>`,
+                tips: '• בדוק שהשולח הוא מכתובת רשמית של הבנק (@bankhapoalim.co.il)\n• בנקים לא יבקשו מידע רגיש במייל\n• התקשר לבנק לאימות\n• בדוק את כתובת הקישור לפני לחיצה'
+            },
+
+            post: {
+                title: 'דואר ישראל',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: rtl; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #0066cc; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px;">📮 דואר ישראל</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #0066cc; margin-top: 0;">📦 חבילה ממתינה לאיסוף</h2>
+    <p style="font-size: 16px; line-height: 1.5;">שלום,</p>
+    <p style="font-size: 16px; line-height: 1.5;">חבילה בינלאומית עבורך הגיעה למרכז הגיון והיא ממתינה לאיסוף.</p>
+    <div style="background: #e3f2fd; padding: 15px; margin: 20px 0; border-radius: 5px;">
+        <p style="margin: 5px 0;"><strong>מספר משלוח:</strong> IL987654321PS</p>
+        <p style="margin: 5px 0;"><strong>משקל:</strong> 1.2 ק"ג</p>
+        <p style="margin: 5px 0;"><strong>דמי מכס:</strong> ₪47.80</p>
+        <p style="margin: 5px 0;"><strong>תאריך הגעה:</strong> 10/06/2025</p>
+    </div>
+    <div style="background: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffc107;">
+        <strong>⏰ תשלום דמי המכס נדרש תוך 48 שעות</strong><br>
+        <span style="font-size: 14px;">אחרת החבילה תוחזר לשולח</span>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #0066cc; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">שלם דמי מכס</a>
+    </div>
+    <p style="font-size: 14px; color: #666;">
+        בברכה,<br>
+        דואר ישראל
+    </p>
+</div>
+</div>`,
+                tips: '• בדוק שהכתובת היא israelpost.co.il\n• דואר ישראל לא מבקש תשלום מקוון עבור דמי מכס\n• אמת את מספר המשלוח באתר הרשמי\n• תשלום דמי מכס נעשה במשרד הדואר'
+            },
+
+            paypal: {
+                title: 'PayPal',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #003087; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px; font-weight: normal;">PayPal</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #003087; margin-top: 0;">Payment Verification Required</h2>
+    <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
+    <p style="font-size: 16px; line-height: 1.5;">We've detected unusual activity on your PayPal account and need you to verify a recent transaction:</p>
+    <div style="background: #fff8e1; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffcc02;">
+        <p style="margin: 5px 0;"><strong>Transaction ID:</strong> 8XY12345Z</p>
+        <p style="margin: 5px 0;"><strong>Amount:</strong> $249.99 USD</p>
+        <p style="margin: 5px 0;"><strong>Merchant:</strong> Tech Solutions Pro</p>
+        <p style="margin: 5px 0;"><strong>Status:</strong> Pending Review</p>
+    </div>
+    <div style="background: #ffebee; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #f44336;">
+        <strong>⚠️ Account Limited</strong><br>
+        <span style="font-size: 14px;">Your account has been temporarily limited until verification is complete</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5;">To restore full access to your account, please verify this transaction:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #0070ba; color: white; padding: 15px 30px; text-decoration: none; border-radius: 20px; font-weight: bold; display: inline-block;">Verify Transaction</a>
+    </div>
+    <p style="font-size: 14px; color: #666;">
+        Thanks,<br>
+        PayPal Security Team
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is from @paypal.com (not @paypaI.com)\n• PayPal never asks for passwords or sensitive info via email\n• Login directly to PayPal to check account status\n• Verify transaction details in your PayPal account'
+            },
+
+            google: {
+                title: 'Google',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: white; padding: 20px; text-align: center; border-bottom: 1px solid #e0e0e0;">
+    <h1 style="margin: 0; color: #4285f4; font-size: 28px; font-weight: 300;">Google</h1>
+    <h2 style="margin: 10px 0 0 0; color: #333; font-size: 20px; font-weight: 400;">Security Alert</h2>
+</div>
+<div style="padding: 20px; background: white;">
+    <p style="font-size: 16px; line-height: 1.5; color: #333;">Hi there,</p>
+    <p style="font-size: 16px; line-height: 1.5; color: #333;">We detected unusual sign-in activity on your Google Account:</p>
+    <div style="background: #fef7e0; padding: 15px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #fbbc04;">
+        <p style="margin: 5px 0; color: #333;"><strong>Device:</strong> Windows PC - Chrome</p>
+        <p style="margin: 5px 0; color: #333;"><strong>Location:</strong> Unknown Location</p>
+        <p style="margin: 5px 0; color: #333;"><strong>Time:</strong> June 12, 2025 at 2:34 PM</p>
+        <p style="margin: 5px 0; color: #333;"><strong>IP Address:</strong> 185.220.101.42</p>
+    </div>
+    <div style="background: #fce8e6; padding: 15px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #ea4335;">
+        <strong style="color: #d93025;">⚠️ Action Required</strong><br>
+        <span style="font-size: 14px; color: #5f6368;">If this wasn't you, your account may be compromised</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5; color: #333;">To secure your account, please review this activity:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #1a73e8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 500; display: inline-block;">Secure My Account</a>
+    </div>
+    <p style="font-size: 14px; color: #5f6368; margin-top: 30px;">
+        Best regards,<br>
+        Google Security Team
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is @google.com or @gmail.com\n• Google never asks for passwords in emails\n• Check account activity directly at myaccount.google.com\n• Be suspicious of urgent security alerts'
+            },
+
+            microsoft: {
+                title: 'Microsoft',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #0078d4; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 400;">Microsoft Office 365</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #323130; margin-top: 0; font-weight: 400;">Account Verification Required</h2>
+    <p style="font-size: 16px; line-height: 1.5; color: #323130;">Hello,</p>
+    <p style="font-size: 16px; line-height: 1.5; color: #323130;">Your Office 365 subscription requires immediate verification to continue service:</p>
+    <div style="background: #fff4ce; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #ffb900;">
+        <p style="margin: 5px 0; color: #323130;"><strong>Subscription:</strong> Office 365 Personal</p>
+        <p style="margin: 5px 0; color: #323130;"><strong>Account:</strong> user@email.com</p>
+        <p style="margin: 5px 0; color: #323130;"><strong>Status:</strong> Verification Pending</p>
+        <p style="margin: 5px 0; color: #323130;"><strong>Expires:</strong> June 13, 2025</p>
+    </div>
+    <div style="background: #fdf2f2; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #d13438;">
+        <strong style="color: #d13438;">⏰ Expires in 24 hours</strong><br>
+        <span style="font-size: 14px; color: #605e5c;">After expiration, you will lose access to all Office applications</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5; color: #323130;">Click below to verify your account and maintain access:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #0078d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 2px; font-weight: 600; display: inline-block;">Verify Account Now</a>
+    </div>
+    <p style="font-size: 14px; color: #605e5c;">
+        Thank you,<br>
+        Microsoft Office Team
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is @microsoft.com or @office.com\n• Microsoft gives more notice before subscription expiry\n• Verify subscription status at account.microsoft.com\n• Be wary of urgent 24-hour deadlines'
+            },
+
+            netflix: {
+                title: 'Netflix',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #e50914; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 0.5px;">NETFLIX</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #221f1f; margin-top: 0; font-weight: 500;">Payment Update Required</h2>
+    <p style="font-size: 16px; line-height: 1.5; color: #221f1f;">Hi,</p>
+    <p style="font-size: 16px; line-height: 1.5; color: #221f1f;">We're having trouble processing your payment for your Netflix membership.</p>
+    <div style="background: #fff2f2; padding: 15px; margin: 20px 0; border-radius: 4px; border-left: 4px solid #e50914;">
+        <p style="margin: 5px 0; color: #221f1f;"><strong>Plan:</strong> Premium (4K + HDR)</p>
+        <p style="margin: 5px 0; color: #221f1f;"><strong>Monthly Fee:</strong> $15.49</p>
+        <p style="margin: 5px 0; color: #221f1f;"><strong>Payment Method:</strong> •••• •••• •••• 1234</p>
+        <p style="margin: 5px 0; color: #221f1f;"><strong>Last Attempt:</strong> June 12, 2025</p>
+    </div>
+    <div style="background: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #ffc107;">
+        <strong style="color: #856404;">⚠️ Account will be suspended in 48 hours</strong><br>
+        <span style="font-size: 14px; color: #856404;">Update your payment method to continue streaming</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5; color: #221f1f;">To keep watching your favorite shows and movies, please update your payment information:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #e50914; color: white; padding: 16px 32px; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 16px; display: inline-block;">Update Payment Method</a>
+    </div>
+    <p style="font-size: 14px; color: #737373;">
+        Questions? Visit our Help Center<br>
+        The Netflix Team
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is @netflix.com (not @netfIix.com)\n• Netflix typically gives more time before suspension\n• Login directly to Netflix to check payment status\n• Netflix emails usually have your account details'
+            },
+
+            whatsapp: {
+                title: 'WhatsApp',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: rtl; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #25d366; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 400;">💬 WhatsApp</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #075e54; margin-top: 0;">אישור מכשיר חדש</h2>
+    <p style="font-size: 16px; line-height: 1.5;">שלום,</p>
+    <p style="font-size: 16px; line-height: 1.5;">זוהה ניסיון כניסה לחשבון WhatsApp שלך ממכשיר לא מוכר:</p>
+    <div style="background: #e8f5e8; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #25d366;">
+        <p style="margin: 5px 0;"><strong>מכשיר:</strong> iPhone 15 Pro</p>
+        <p style="margin: 5px 0;"><strong>מיקום:</strong> תל אביב, ישראל</p>
+        <p style="margin: 5px 0;"><strong>זמן:</strong> 12/06/2025 בשעה 14:30</p>
+        <p style="margin: 5px 0;"><strong>כתובת IP:</strong> 87.69.185.42</p>
+    </div>
+    <div style="background: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffc107;">
+        <strong>🔐 נדרש אישור בטחון</strong><br>
+        <span style="font-size: 14px;">אם זה לא אתה, החשבון שלך עלול להיות בסכנה</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5;">לחץ על הכפתור למטה כדי לאשר או לחסום את המכשיר:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #25d366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px;">✅ אשר מכשיר</a>
+        <a href="#" style="background: #dc3545; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 5px;">❌ חסום</a>
+    </div>
+    <p style="font-size: 14px; color: #666;">
+        בברכה,<br>
+        צוות האבטחה של WhatsApp
+    </p>
+</div>
+</div>`,
+                tips: '• WhatsApp לא שולח מיילי אישור כאלה\n• אימות נעשה רק דרך האפליקציה במכשיר\n• בדוק בהגדרות האפליקציה את המכשירים המחוברים\n• WhatsApp לא מבקש פרטי התחברות במייל'
+            },
+
+            amazon: {
+                title: 'Amazon',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #232f3e; color: white; padding: 20px;">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 400;">amazon</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #0066c0; margin-top: 0; font-weight: 400;">Order Update Required</h2>
+    <p style="font-size: 16px; line-height: 1.5; color: #0f1111;">Hello,</p>
+    <p style="font-size: 16px; line-height: 1.5; color: #0f1111;">There's an issue with your recent Amazon order that requires immediate attention:</p>
+    <div style="background: #f7f8f8; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #ddd;">
+        <p style="margin: 5px 0; color: #0f1111;"><strong>Order #:</strong> 114-7829304-2847628</p>
+        <p style="margin: 5px 0; color: #0f1111;"><strong>Item:</strong> Apple AirPods Pro (2nd Gen)</p>
+        <p style="margin: 5px 0; color: #0f1111;"><strong>Price:</strong> $249.00</p>
+        <p style="margin: 5px 0; color: #0f1111;"><strong>Status:</strong> Payment Verification Needed</p>
+    </div>
+    <div style="background: #fff2cc; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #ffb900;">
+        <strong style="color: #7c6500;">⚠️ Shipment Delayed</strong><br>
+        <span style="font-size: 14px; color: #7c6500;">Your order cannot be processed until payment is verified</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5; color: #0f1111;">To continue with your order, please verify your payment information:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #ff9900; color: #0f1111; padding: 12px 24px; text-decoration: none; border-radius: 3px; font-weight: 700; display: inline-block;">Verify Payment</a>
+    </div>
+    <p style="font-size: 14px; color: #555;">
+        Thank you for shopping with us,<br>
+        Customer Service<br>
+        Amazon.com
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is @amazon.com (not @amazone.com)\n• Login directly to Amazon to check order status\n• Amazon order numbers have specific format\n• Verify order details match your actual purchases'
+            },
+
+            apple: {
+                title: 'Apple',
+                html: `<div style="max-width: 600px; font-family: -apple-system, Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #f5f5f7; padding: 20px; text-align: center; border-bottom: 1px solid #d2d2d7;">
+    <h1 style="margin: 0; color: #1d1d1f; font-size: 24px; font-weight: 600;">🍎 Apple</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #1d1d1f; margin-top: 0; font-weight: 500;">App Store Purchase Receipt</h2>
+    <p style="font-size: 16px; line-height: 1.5; color: #1d1d1f;">Dear Customer,</p>
+    <p style="font-size: 16px; line-height: 1.5; color: #1d1d1f;">Thank you for your purchase from the App Store. Here are the details:</p>
+    <div style="background: #f5f5f7; padding: 20px; margin: 20px 0; border-radius: 8px;">
+        <p style="margin: 5px 0; color: #1d1d1f;"><strong>App:</strong> Premium Security Pro</p>
+        <p style="margin: 5px 0; color: #1d1d1f;"><strong>Developer:</strong> SecureMax Solutions</p>
+        <p style="margin: 5px 0; color: #1d1d1f;"><strong>Price:</strong> $99.99</p>
+        <p style="margin: 5px 0; color: #1d1d1f;"><strong>Purchase Date:</strong> June 12, 2025</p>
+    </div>
+    <div style="background: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 8px; border: 1px solid #ffc107;">
+        <strong style="color: #856404;">💳 Payment Issue Detected</strong><br>
+        <span style="font-size: 14px; color: #856404;">Your payment method was declined. Please update to avoid service interruption.</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5; color: #1d1d1f;">If you did not authorize this purchase, please review your receipt:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #007aff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 500; display: inline-block;">Review Purchase</a>
+    </div>
+    <p style="font-size: 14px; color: #86868b;">
+        Best regards,<br>
+        Apple Store Team
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is @apple.com (not @appIe.com)\n• Apple receipts come from do_not_reply@apple.com\n• Check purchase history in App Store directly\n• Apple uses different receipt format'
+            },
+
+            facebook: {
+                title: 'Facebook',
+                html: `<div style="max-width: 600px; font-family: Arial; direction: ltr; margin: 0 auto; border: 1px solid #ddd;">
+<div style="background: #1877f2; color: white; padding: 20px; text-align: center;">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 700;">facebook</h1>
+</div>
+<div style="padding: 20px; background: white;">
+    <h2 style="color: #1c1e21; margin-top: 0; font-weight: 500;">Security Alert</h2>
+    <p style="font-size: 16px; line-height: 1.5; color: #1c1e21;">Hi there,</p>
+    <p style="font-size: 16px; line-height: 1.5; color: #1c1e21;">We detected a login attempt to your Facebook account from an unrecognized device:</p>
+    <div style="background: #f0f2f5; padding: 15px; margin: 20px 0; border-radius: 8px; border: 1px solid #dadde1;">
+        <p style="margin: 5px 0; color: #1c1e21;"><strong>Device:</strong> Samsung Galaxy S24</p>
+        <p style="margin: 5px 0; color: #1c1e21;"><strong>Location:</strong> Unknown Location</p>
+        <p style="margin: 5px 0; color: #1c1e21;"><strong>Browser:</strong> Chrome Mobile</p>
+        <p style="margin: 5px 0; color: #1c1e21;"><strong>Time:</strong> June 12, 2025 at 3:15 PM</p>
+    </div>
+    <div style="background: #ffebee; padding: 15px; margin: 20px 0; border-radius: 8px; border: 1px solid #f44336;">
+        <strong style="color: #c62828;">🚨 Suspicious Activity</strong><br>
+        <span style="font-size: 14px; color: #c62828;">If this wasn't you, your account may be compromised</span>
+    </div>
+    <p style="font-size: 16px; line-height: 1.5; color: #1c1e21;">To secure your account, please review this login attempt:</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" style="background: #1877f2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin: 5px;">Secure Account</a>
+        <a href="#" style="background: #42b883; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin: 5px;">This Was Me</a>
+    </div>
+    <p style="font-size: 14px; color: #65676b;">
+        Thanks,<br>
+        Facebook Security Team
+    </p>
+</div>
+</div>`,
+                tips: '• Check sender is @facebookmail.com or @facebook.com\n• Login directly to Facebook to check security settings\n• Review recent login activity in settings\n• Facebook shows specific device and location info'
+            }
+        };
+
+        // יצירת מפת זיהוי הפוכה
+        const reverseMap = {};
+        Object.keys(homoglyphs).forEach(original => {
+            homoglyphs[original].forEach(fake => {
+                reverseMap[fake] = original;
+            });
+        });
+
+        let currentTemplate = '';
+
+        // פונקציות ניווט
+        function showTab(tabName) {
+            // הסתר כל הטאבים
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // הסר active מכל הכפתורים
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // הצג הטאב הנבחר
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // אתחל טבלה אם נדרש
+            if (tabName === 'table' && document.getElementById('tableBody').children.length === 0) {
+                populateTable();
+            }
+        }
+
+        // מילוי דוגמאות
+        function setExample(text) {
+            document.getElementById('detectInput').value = text;
+        }
+
+        // ניתוח טקסט לזיהוי הומוגליפים
+        function analyzeText() {
+            const input = document.getElementById('detectInput').value;
+            if (!input.trim()) {
+                alert('אנא הזן טקסט לבדיקה');
+                return;
+            }
+
+            let suspicious = [];
+            let highlightedText = '';
+            let cleanText = '';
+
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i];
+                if (reverseMap[char]) {
+                    const original = reverseMap[char];
+                    suspicious.push({
+                        char: char,
+                        original: original,
+                        position: i
+                    });
+                    highlightedText += `<span class="highlight" title="תו חשוד: ${char} (${char.charCodeAt(0).toString(16)}) במקום ${original}">${char}</span>`;
+                    cleanText += original;
+                } else {
+                    highlightedText += char;
+                    cleanText += char;
+                }
+            }
+
+            // הצגת התוצאות
+            document.getElementById('originalText').innerHTML = highlightedText;
+            document.getElementById('cleanText').textContent = cleanText;
+            document.getElementById('detectResults').style.display = 'block';
+
+            // עדכון סטטיסטיקות
+            const suspiciousCount = suspicious.length;
+            const totalChars = input.length;
+            const cleanPercentage = Math.round(((totalChars - suspiciousCount) / totalChars) * 100);
+            
+            let riskLevel = 'נמוך';
+            if (suspiciousCount > 0) {
+                if (suspiciousCount >= totalChars * 0.5) riskLevel = 'גבוה';
+                else if (suspiciousCount >= totalChars * 0.2) riskLevel = 'בינוני';
+                else riskLevel = 'נמוך-בינוני';
+            }
+
+            document.getElementById('suspiciousCount').textContent = suspiciousCount;
+            document.getElementById('riskLevel').textContent = riskLevel;
+            document.getElementById('cleanPercentage').textContent = cleanPercentage + '%';
+            
+            if (suspiciousCount > 0) {
+                document.getElementById('statsContainer').style.display = 'grid';
+            }
+
+            // ניתוח מפורט
+            let analysisHtml = '';
+            if (suspicious.length > 0) {
+                analysisHtml = `
+                    <div class="analysis analysis-danger">
+                        <h3>⚠️ נמצאו ${suspicious.length} תווים חשודים מתוך ${totalChars} תווים סה"כ:</h3>
+                        <ul style="text-align: right; margin: 15px 0;">
+                `;
+                suspicious.forEach(item => {
+                    const unicodeOrig = item.original.charCodeAt(0).toString(16).toUpperCase();
+                    const unicodeFake = item.char.charCodeAt(0).toString(16).toUpperCase();
+                    analysisHtml += `<li style="margin: 8px 0;"><strong>"${item.char}"</strong> (U+${unicodeFake}) במקום <strong>"${item.original}"</strong> (U+${unicodeOrig}) במיקום ${item.position + 1}</li>`;
+                });
+                analysisHtml += `
+                        </ul>
+                        <p style="margin-top: 20px;"><strong>רמת סיכון:</strong> ${riskLevel}</p>
+                        <p><strong>המלצה:</strong> ${getRiskAdvice(riskLevel)}</p>
+                    </div>
+                `;
+            } else {
+                analysisHtml = `
+                    <div class="analysis analysis-success">
+                        <h3>✅ הטקסט נקי ובטוח!</h3>
+                        <p>לא נמצאו תווים חשודים או הומוגליפים בטקסט זה.</p>
+                        <p>הטקסט משתמש בתווים סטנדרטיים בלבד.</p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('analysisResult').innerHTML = analysisHtml;
+        }
+
+        function getRiskAdvice(riskLevel) {
+            switch(riskLevel) {
+                case 'גבוה': return 'זהירות גבוהה! ייתכן מדובר בניסיון פישינג או הונאה. אל תלחץ על קישורים.';
+                case 'בינוני': return 'היזהר! בדוק את מקור הטקסט ואמת לפני פעולה כלשהי.';
+                case 'נמוך-בינוני': return 'שים לב! יש תווים חשודים בודדים. בדוק את המקור.';
+                default: return 'רמת סיכון נמוכה, אך תמיד כדאי להיות זהיר.';
+            }
+        }
+
+        // יצירת טקסט מתחפש
+        function generateText() {
+            const input = document.getElementById('generateInput').value;
+            if (!input.trim()) {
+                alert('אנא הזן טקסט ליצירה');
+                return;
+            }
+
+            const level = parseFloat(document.querySelector('input[name="level"]:checked').value);
+            let result = '';
+            let changes = [];
+
+            for (let i = 0; i < input.length; i++) {
+                const char = input[i];
+                if (homoglyphs[char] && Math.random() < level) {
+                    const alternatives = homoglyphs[char];
+                    const chosen = alternatives[Math.floor(Math.random() * alternatives.length)];
+                    result += chosen;
+                    changes.push({
+                        original: char,
+                        replacement: chosen,
+                        position: i,
+                        originalUnicode: char.charCodeAt(0).toString(16).toUpperCase(),
+                        replacementUnicode: chosen.charCodeAt(0).toString(16).toUpperCase()
+                    });
+                } else {
+                    result += char;
+                }
+            }
+
+            // הצגת התוצאות
+            document.getElementById('generatedText').textContent = result;
+            document.getElementById('generateResults').style.display = 'block';
+
+            // ניתוח השינויים
+            let analysisHtml = '';
+            if (changes.length > 0) {
+                const percentage = Math.round((changes.length / input.length) * 100);
+                analysisHtml = `
+                    <div class="analysis">
+                        <h3>🔬 ניתוח ההתחפשות:</h3>
+                        <p><strong>בוצעו ${changes.length} שינויים מתוך ${input.length} תווים (${percentage}%)</strong></p>
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <h4>📝 השינויים שבוצעו:</h4>
+                            <ul style="text-align: right; margin: 10px 0;">
+                `;
+                changes.forEach(change => {
+                    analysisHtml += `<li style="margin: 5px 0;">"${change.original}" (U+${change.originalUnicode}) → "${change.replacement}" (U+${change.replacementUnicode}) במיקום ${change.position + 1}</li>`;
+                });
+                analysisHtml += `
+                            </ul>
+                        </div>
+                        <p><strong>רמת הצלחה:</strong> ${getSuccessLevel(percentage)}</p>
+                    </div>
+                `;
+            } else {
+                analysisHtml = '<div class="analysis"><p>לא בוצעו שינויים ברמת הערבוב שנבחרה. נסה רמה גבוהה יותר.</p></div>';
+            }
+            
+            document.getElementById('generateAnalysis').innerHTML = analysisHtml;
+        }
+
+        function getSuccessLevel(percentage) {
+            if (percentage >= 70) return 'גבוהה מאוד - טקסט מאוד מתחפש';
+            if (percentage >= 50) return 'גבוהה - טקסט מתחפש היטב';
+            if (percentage >= 30) return 'בינונית - טקסט מתחפש חלקית';
+            if (percentage >= 10) return 'נמוכה - שינויים מועטים';
+            return 'מינימלית - כמעט ללא שינויים';
+        }
+
+        // העתקה ללוח
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('הועתק ללוח!');
+            }).catch(() => {
+                // fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('הועתק ללוח!');
+            });
+        }
+
+        // מילוי טבלת הומוגליפים
+        function populateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            Object.keys(homoglyphs).forEach(original => {
+                homoglyphs[original].forEach(fake => {
+                    const row = tbody.insertRow();
+                    
+                    const cell1 = row.insertCell(0);
+                    cell1.innerHTML = `<span class="char-display">${original}</span>`;
+                    
+                    const cell2 = row.insertCell(1);
+                    cell2.innerHTML = `<span class="char-display">${fake}</span>`;
+                    
+                    const cell3 = row.insertCell(2);
+                    cell3.textContent = getCharacterSystem(fake);
+                    
+                    const cell4 = row.insertCell(3);
+                    cell4.textContent = 'U+' + fake.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0');
+                    
+                    const cell5 = row.insertCell(4);
+                    cell5.textContent = getCommonUsage(original, fake);
+                });
+            });
+        }
+
+        // זיהוי מערכת התו
+        function getCharacterSystem(char) {
+            const code = char.charCodeAt(0);
+            if (code >= 0x0400 && code <= 0x04FF) return 'קיריליקה (רוסית)';
+            if (code >= 0x0370 && code <= 0x03FF) return 'יוונית';
+            if (code >= 0x2100 && code <= 0x214F) return 'מספרים רומיים';
+            if (code >= 0x1D400 && code <= 0x1D7FF) return 'סמלים מתמטיים';
+            if (code >= 0x0600 && code <= 0x06FF) return 'ערבית';
+            return 'לטינית מורחבת';
+        }
+
+        // שימוש נפוץ
+        function getCommonUsage(original, fake) {
+            const commonTargets = {
+                'a': 'Google, PayPal',
+                'e': 'Facebook, Netflix',
+                'o': 'Microsoft, Amazon',
+                'p': 'PayPal, Apple',
+                'c': 'Microsoft',
+                '0': 'כתובות אתרים',
+                '1': 'מספרי טלפון'
+            };
+            return commonTargets[original] || 'כללי';
+        }
+
+        // סינון טבלה
+        function filterTable() {
+            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // פונקציות תבניות פישינג
+        function showTemplate(templateId) {
+            currentTemplate = templateId;
+            const template = templates[templateId];
+            
+            document.getElementById('templateTitle').textContent = template.title;
+            document.getElementById('templatePreview').innerHTML = template.html;
+            document.getElementById('templateCode').textContent = template.html;
+            document.getElementById('templateTips').textContent = template.tips;
+            document.getElementById('templateViewer').style.display = 'block';
+            
+            document.getElementById('templateViewer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeTemplate() {
+            document.getElementById('templateViewer').style.display = 'none';
+        }
+
+        function copyTemplateCode() {
+            const code = document.getElementById('templateCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('קוד התבנית הועתק ללוח!');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('קוד התבנית הועתק ללוח!');
+            });
+        }
+
+        function downloadTemplate() {
+            const template = templates[currentTemplate];
+            const fullHtml = `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${template.title} - תבנית לחינוך</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .warning { background: #fff3cd; padding: 20px; border: 2px solid #ffc107; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="warning">
+        <h2>⚠️ זוהי תבנית לחינוך בלבד</h2>
+        <p>תבנית זו מיועדת למטרות חינוכיות ולימוד זיהוי פישינג בלבד</p>
+        <p><strong>אסור להשתמש בה למטרות הונאה או פעילות בלתי חוקית</strong></p>
+    </div>
+    ${template.html}
+    <div class="warning">
+        <h3>איך לזהות שזה פישינג:</h3>
+        <p style="white-space: pre-line;">${template.tips}</p>
+    </div>
+</body>
+</html>`;
+            
+            const blob = new Blob([fullHtml], { type: 'text/html; charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentTemplate}_phishing_template.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // אתחול
+        document.addEventListener('DOMContentLoaded', function() {
+            // הוסף event listeners לרדיו buttons
+            const radioInputs = document.querySelectorAll('input[name="level"]');
+            radioInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    // עדכן עיצוב כאשר נבחר
+                    radioInputs.forEach(r => r.parentElement.style.background = 'white');
+                    if (this.checked) {
+                        this.parentElement.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                        this.parentElement.style.color = 'white';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

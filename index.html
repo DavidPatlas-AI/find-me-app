@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תחפשני - זיהוי הומוגליפים ותבניות פישינג</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='../index.html'">
+        ← חזרה לדף הראשי
+    </button>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔍 תחפשני</h1>
+            <p>כלי מתקדם לזיהוי הומוגליפים וניתוח תבניות פישינג</p>
+            <p style="font-size: 1em; opacity: 0.8;">למטרות חינוכיות ומחקר אבטחת מידע בלבד</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('detect')">🔍 זיהוי הומוגליפים</button>
+            <button class="tab-btn" onclick="showTab('generate')">🎲 יצירת טקסט מתחפש</button>
+            <button class="tab-btn" onclick="showTab('table')">📊 טבלת תווים</button>
+            <button class="tab-btn" onclick="showTab('templates')">🎭 תבניות פישינג</button>
+        </div>
+        
+        <!-- Detection Tab -->
+        <div id="detect" class="tab-content active">
+            <div class="card">
+                <div class="input-group">
+                    <label>🔍 הדבק טקסט לבדיקת הומוגליפים:</label>
+                    <textarea id="detectInput" rows="5" placeholder="נסה להדביק: Dаvid (David עם אות 'a' רוסית), gооglе.соm, раyраl.com"></textarea>
+                    <div class="examples">
+                        <button class="btn btn-small btn-secondary" onclick="setExample('Dаvid')">📝 David מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('gооglе.соm')">📝 Google מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('раyраl.com')">📝 PayPal מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('miсrоsоft.com')">📝 Microsoft מזויף</button>
+                        <button class="btn btn-small btn-secondary" onclick="setExample('аpplе.com')">📝 Apple מזויף</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="analyzeText()">🔍 בדוק טקסט</button>
+                </div>
+                
+                <div id="detectResults" class="results" style="display: none;">
+                    <div class="stats-container" id="statsContainer" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-number" id="suspiciousCount">0</div>
+                            <div class="stat-label">תווים חשודים</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="riskLevel">נמוך</div>
+                            <div class="stat-label">רמת סיכון</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="cleanPercentage">100%</div>
+                            <div class="stat-label">טקסט תקין</div>
+                        </div>
+                    </div>
+                    
+                    <div class="results-grid">
+                        <div>
+                            <h3>📝 טקסט מקורי (עם הדגשות):</h3>
+                            <div id="originalText" class="output-box"></div>
+                        </div>
+                        <div>
+                            <h3>✅ גרסה נקייה: <button class="btn btn-small btn-green" onclick="copyText('cleanText')">📋 העתק</button></h3>
+                            <div id="cleanText" class="output-box output-clean"></div>
+                        </div>
+                    </div>
+                    <div id="analysisResult"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Generation Tab -->
+        <div id="generate" class="tab-content">
+            <div class="card">
+                <div class="input-group">
+                    <label>🎲 הזן טקסט ליצירת גרסה מתחפשת:</label>
+                    <textarea id="generateInput" rows="3" placeholder="דוגמה: Google, PayPal, Microsoft, Apple"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>רמת ההתחפשות:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="level" value="0.3" checked> 🟢 קל (30%)</label>
+                        <label><input type="radio" name="level" value="0.6"> 🟡 בינוני (60%)</label>
+                        <label><input type="radio" name="level" value="0.9"> 🔴 כבד (90%)</label>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="generateText()">🎲 צור טקסט מתחפש</button>
+                </div>
+                
+                <div id="generateResults" class="results" style="display: none;">
+                    <div style="background: linear-gradient(135deg, #343a40, #212529); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                            <h3 style="margin: 0; font-size: 1.5em;">🎭 הטקסט המתחפש:</h3>
+                            <button class="btn btn-small btn-green" onclick="copyText('generatedText')">📋 העתק</button>
+                        </div>
+                        <div id="generatedText" style="background: linear-gradient(135deg, #495057, #6c757d); padding: 20px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: 24px; word-break: break-all; border: 2px solid #adb5bd;"></div>
+                    </div>
+                    <div id="generateAnalysis"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Table Tab -->
+        <div id="table" class="tab-content">
+            <div class="card">
+                <div class="input-group">
+                    <label>🔍 חפש בטבלת ההומוגליפים:</label>
+                    <input type="text" id="tableSearch" placeholder="חפש תו, שפה או קוד Unicode..." onkeyup="filterTable()">
+                </div>
+                
+                <div class="table-container">
+                    <table id="homoglyphTable">
+                        <thead>
+                            <tr>
+                                <th>תו מקורי</th>
+                                <th>תו מתחפש</th>
+                                <th>מערכת כתיבה</th>
+                                <th>קוד Unicode</th>
+                                <th>שימוש נפוץ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- יתמלא ב-JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Templates Tab -->
+        <div id="templates" class="tab-content">
+            <div class="card">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🎭 תבניות פישינג לחינוך</h2>
+                <p style="text-align: center; margin-bottom: 30px; color: #6c757d; font-size: 1.1em;">
+                    תבניות אלו מיועדות ללימוד וזיהוי ניסיונות פישינג. השתמש בהן כדי ללמוד איך לזהות מיילים מזויפים.
+                </p>
+                
+                <div class="grid">
+                    <div class="template-card" onclick="showTemplate('bank')">
+                        <div class="icon">🏦</div>
+                        <h3>בנק הפועלים</h3>
+                        <p>הודעת אבטחה מזויפת</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('post')">
+                        <div class="icon">📮</div>
+                        <h3>דואר ישראל</h3>
+                        <p>חבילה ממתינה</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('paypal')">
+                        <div class="icon">💳</div>
+                        <h3>PayPal</h3>
+                        <p>אישור תשלום</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('google')">
+                        <div class="icon">🔍</div>
+                        <h3>Google</h3>
+                        <p>התראת אבטחה</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('microsoft')">
+                        <div class="icon">🖥️</div>
+                        <h3>Microsoft</h3>
+                        <p>עדכון Office</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('netflix')">
+                        <div class="icon">🎬</div>
+                        <h3>Netflix</h3>
+                        <p>בעיה בתשלום</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('whatsapp')">
+                        <div class="icon">💬</div>
+                        <h3>WhatsApp</h3>
+                        <p>אישור מכשיר</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('amazon')">
+                        <div class="icon">📦</div>
+                        <h3>Amazon</h3>
+                        <p>עדכון הזמנה</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('apple')">
+                        <div class="icon">🍎</div>
+                        <h3>Apple</h3>
+                        <p>קבלה מהחנות</p>
+                    </div>
+                    
+                    <div class="template-card" onclick="showTemplate('facebook')">
+                        <div class="icon">👥</div>
+                        <h3>Facebook</h3>
+                        <p>התראת אבטחה</p>
+                    </div>
+                </div>
+                
+                <div id="templateViewer" class="viewer">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                        <h2 id="templateTitle" style="margin: 0;"></h2>
+                        <div>
+                            <button class="btn btn-small btn-green" onclick="copyTemplateCode()">📋 העתק קוד</button>
+                            <button class="btn btn-small btn-blue" onclick="downloadTemplate()">⬇️ הורד</button>
+                            <button class="btn btn-small btn-secondary" onclick="closeTemplate()">❌ סגור</button>
+                        </div>
+                    </div>
+                    
+                    <h3>👁️ תצוגה מקדימה:</h3>
+                    <div id="templatePreview" class="preview"></div>
+                    
+                    <h3>📝 קוד HTML:</h3>
+                    <div class="code">
+                        <pre id="templateCode" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+                    </div>
+                    
+                    <h3>🔍 איך לזהות שזה זיוף:</h3>
+                    <div id="templateTips" class="tips"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ אזהרה חשובה</h3>
+            <p style="font-size: 1.2em; margin: 15px 0;">כלי זה מיועד למטרות חינוכיות ומחקר בטחון מידע בלבד. אסור להשתמש בו לפעילות בלתי חוקית, הונאה או פישינג.</p>
+            <p style="font-size: 1em; opacity: 0.8;">השימוש בכלי זה הוא באחריותך הבלעדית ולמטרות לגיטימיות בלבד.</p>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="templates.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
