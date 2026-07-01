@@ -1,3 +1,3 @@
-# Hebrew find-me / search app | תחפשני
-
-MIT © 2026 [David Patlas](https://github.com/DavidPatlas-AI)
+# תחפשני — Find Me App
+אפליקציית חיפוש/איתור בעברית.
+**הרצה:** פתח `index.html`.
